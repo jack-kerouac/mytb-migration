@@ -14,6 +14,7 @@ class Trip:
 
     - mytb URL
     - title
+    - description
     - from_
     - until
     - #blog entries

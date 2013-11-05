@@ -166,7 +166,8 @@ def parse_trip(url):
     content = PyQuery(url, parser='html')('#content')
     text_nodes = list(get_text_nodes(content))
 
-    trip.title = str(text_nodes[2])
+    trip.title = content('h1').text()
+    trip.description = str(text_nodes[2])
 
     trip.from_ = dparser.parse(content.find('.info .date').eq(0).text())
     trip.until = dparser.parse(content.find('.info .date').eq(1).text())
