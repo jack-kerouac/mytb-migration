@@ -12,6 +12,9 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
+BASE_URL = 'http://www.travelblog.org'
+
+
 def has_class(element, class_):
     if not PyQuery(element).attr.class_:
         return False
@@ -109,22 +112,34 @@ def parse_text(entry, body):
     pass
 
 
-def parse_photos(entry, html):
-    c = html.find
+def get_photos_on_page(html):
+    photos = []
 
-    # first page
-    for photo_blog in c('.photo_blog').items():
+    for photo_blog in html('.photo_blog').items():
         photo = blog.Photo()
         photo.url = photo_blog.find('img:first').attr('data-src')
         photo.title = photo_blog.find('img:first').attr('title')
         photo.subtitle = PyQuery(photo_blog.contents()[-1]).text() if photo_blog.find('hr') else ''
 
-        entry.photos.append(photo)
+        photos.append(photo)
+
+    return photos
+
+
+def parse_photos(entry, html):
+    entry.photos = []
+
+    # first page
+    entry.photos.extend(get_photos_on_page(html))
 
     # more photos on other pages?
-    # TODO: add more photos
-    if c('.breadcrumbs nav_wrapper').children():
-        pass
+    more_photo_nav = html('.breadcrumbs .nav_wrapper')
+    if more_photo_nav.children():
+        more_photo_nav.make_links_absolute(BASE_URL)
+        additional_photo_pages = [a.attr('href') for a in list(more_photo_nav('a').items())[:-1]]
+        for url in additional_photo_pages:
+            html = PyQuery(url, parser='html')
+            entry.photos.extend(get_photos_on_page(html))
 
 
 def parse_entry(url):
@@ -159,7 +174,7 @@ def parse_trip(url):
     trip.number_entries = int(text_nodes[4])
     trip.number_photos = int(text_nodes[5])
 
-    content.make_links_absolute()
+    content.make_links_absolute(BASE_URL)
     urls = map(lambda tr: tr('a').attr('href'), content.find('table tr').items())
 
     trip.entries = [parse_entry(url) for url in urls]
@@ -178,5 +193,4 @@ for entry in trip.entries:
     print('{}:\n{}\n\n\n\n'.format(entry.title, entry.text))
 
 assert trip.number_entries == len(trip.entries)
-# TODO: reenable this assertion as soon as all photos are parsed
-#assert trip.number_photos == sum(map(lambda entry: len(entry.photos), trip.entries))
+assert trip.number_photos == sum(map(lambda entry: len(entry.photos), trip.entries))
