@@ -77,9 +77,9 @@ def parse_text(entry, body):
     # remove last <hr>
     c('hr.divider_hr').remove()
 
-    # replace div.quote_wrapper by blockquotes
+    # replace div.quote_wrapper by <q>
     for quote in c('div.quote_wrapper').items():
-        quote.replaceWith('<blockquote>{}</blockquote>'.format(quote.text()))
+        quote.replaceWith('<q>{}</q>'.format(quote.text()))
 
     # properly format lists
     for list_ in c('ul, ol').items():
