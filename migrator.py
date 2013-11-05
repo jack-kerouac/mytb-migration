@@ -68,12 +68,7 @@ def parse_text(entry, body):
     c('.blognav').remove()
     c('.clean_head').remove()
 
-    # remove <br> before and after <h2>
-    c('h2').prev('br').remove()
-    c('h2').next('br').remove()
-
-    # remove <br>s after <h2>
-    c('h2 + br').remove()
+    # remove one of the two <br>s after <h2>
     c('h2 + br').remove()
 
     # remove last <br>
@@ -91,7 +86,7 @@ def parse_text(entry, body):
         text_nodes = get_text_nodes(list_)
         list_.html(''.join(['<li>' + item.replace(' • ', '') + '</li>' for item in text_nodes]))
 
-    # WORKING ON THE CONTENT AS STRING FROM HERE ON
+    # WORKING ON THE CONTENT AS STRING FROM HERE ON   (FUNKY!)
 
     # replace strange \r returned by mytb and remove leading and trailing whitespace
     content.html(content.html().replace('&#13;', '').strip())
@@ -104,6 +99,10 @@ def parse_text(entry, body):
     text = text.replace('<br/><br/>', '</p><p>')
     text = '<p>' + text + '</p>'
 
+    text = text.replace('<br/><h2>', '</p><h2>')
+    text = text.replace('</h2> <br/>', '</h2><p>')
+
+    # parse and pretty print it
     content.html(text)
     entry.text = content.html(pretty_print=True)
 
