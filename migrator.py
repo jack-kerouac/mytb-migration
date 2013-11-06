@@ -1,11 +1,11 @@
 import logging
-
-__author__ = 'florian'
+import urllib
 
 from pyquery import PyQuery
-import blog
 import dateutil.parser as dparser
 import lxml
+
+import blog
 
 
 logger = logging.getLogger(__name__)
@@ -148,7 +148,9 @@ def parse_entry(url):
     entry = blog.Entry()
     entry.mytb_url = url
 
-    d = PyQuery(url, parser='html')
+    d = PyQuery(url,
+                opener=lambda url, **kw: urllib.request.urlopen(url).read().decode('utf-8'),
+                parser='html')
 
     parse_meta(entry, d.clone())
 
