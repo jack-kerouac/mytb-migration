@@ -4,6 +4,7 @@ __author__ = 'florian'
 
 from mytb import parse_trip
 from mytb import parse_entry
+from wordpress import WordpressSite
 import argparse
 import yaml
 
@@ -41,6 +42,11 @@ def download_entry(args):
     print(yaml.dump(entry))
 
 
+def wp_access_token(args):
+    access_token = WordpressSite.obtain_access_token(args.client_id, args.client_secret, args.redirect_uri)
+    print(access_token)
+
+
 parser = argparse.ArgumentParser()
 
 subparsers = parser.add_subparsers(dest='subparser_name')
@@ -55,6 +61,13 @@ parser_download_entry = subparsers.add_parser('download-entry', help='download a
 parser_download_entry.set_defaults(func=download_entry)
 parser_download_entry.add_argument(dest='entry_url')
 parser_download_entry.add_argument('--dump-html', type=argparse.FileType('w'))
+
+
+parser_wp_access_token = subparsers.add_parser('wp-access-token', help='retrieve the access token for a wordpress blog')
+parser_wp_access_token.set_defaults(func=wp_access_token)
+parser_wp_access_token.add_argument('--client-id', required=True)
+parser_wp_access_token.add_argument('--client-secret', required=True)
+parser_wp_access_token.add_argument('--redirect-uri', required=True)
 
 
 args = parser.parse_args()

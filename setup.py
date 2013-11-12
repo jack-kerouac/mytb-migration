@@ -18,6 +18,10 @@ setup(
     install_requires=[
         'python_dateutil',
         'pyquery',
+        'cssselect',    # required by pyquery
+        'requests',
+        'rauth',
+        'lxml',
         'pyyaml'
     ],
     classifiers = []
