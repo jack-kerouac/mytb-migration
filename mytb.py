@@ -5,6 +5,8 @@ from pyquery import PyQuery
 import dateutil.parser as dparser
 import lxml
 
+import re
+
 import blog
 
 
@@ -101,11 +103,11 @@ def parse_text(entry, body):
         logger.warn('there is a <p> tag in content: %s', content.html(pretty_print=True))
 
     text = content.html().strip()
-    text = text.replace('<br/><br/>', '</p><p>')
+    text = re.sub(r'<br/>\s*<br/>', '</p><p>', text)
     text = '<p>' + text + '</p>'
 
-    text = text.replace('<br/><h2>', '</p><h2>')
-    text = text.replace('</h2> <br/>', '</h2><p>')
+    text = re.sub(r'<br/>\s*<h2>', '</p><h2>', text)
+    text = re.sub(r'</h2>\s*<br/>', '</h2><p>', text)
 
     # parse and pretty print it
     content.html(text)
