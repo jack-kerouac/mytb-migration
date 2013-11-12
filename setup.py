@@ -18,6 +18,7 @@ setup(
     install_requires=[
         'python_dateutil',
         'pyquery',
+        'pyyaml'
     ],
     classifiers = []
 )

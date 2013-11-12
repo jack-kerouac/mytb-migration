@@ -5,6 +5,7 @@ __author__ = 'florian'
 from mytb import parse_trip
 from mytb import parse_entry
 import argparse
+import yaml
 
 # EXAMPLE TRIP: http://www.travelblog.org/Bloggers/Jack-Kerouac/Trips/22425
 # EXAMPLE ENTRY: http://www.travelblog.org/Europe/Germany/Bavaria/Munich/blog-814549.html
@@ -20,17 +21,20 @@ def download_trip(args):
     _verify_http_url(args.trip_url)
     trip = parse_trip(args.trip_url)
 
-    for entry in trip.entries:
-        print('{}:\n{}\n\n\n\n'.format(entry.title, entry.text))
+    #for entry in trip.entries:
+    #    print('{}:\n{}\n\n\n\n'.format(entry.title, entry.text))
 
     assert trip.number_entries == len(trip.entries)
     assert trip.number_photos == sum(map(lambda entry: len(entry.photos), trip.entries))
+
+    print(yaml.dump(trip))
 
 
 def download_entry(args):
     _verify_http_url(args.entry_url)
     entry = parse_entry(args.entry_url)
-    print(entry.text)
+
+    print(yaml.dump(entry))
 
 
 parser = argparse.ArgumentParser()
