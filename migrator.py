@@ -49,7 +49,7 @@ def wp_access_token(args):
 
 parser = argparse.ArgumentParser()
 
-subparsers = parser.add_subparsers(dest='subparser_name')
+subparsers = parser.add_subparsers(dest='subparser_name', title='subcommands')
 
 parser_download_trip = subparsers.add_parser('download-trip', help='download a whole trip from www.mytb.org')
 parser_download_trip.set_defaults(func=download_trip)
@@ -71,4 +71,7 @@ parser_wp_access_token.add_argument('--redirect-uri', required=True)
 
 
 args = parser.parse_args()
-args.func(args)
+if hasattr(args, 'func'):
+    args.func(args)
+else:
+    parser.print_usage()
