@@ -1,5 +1,3 @@
-__author__ = 'florian'
-
 import json
 
 from rauth import OAuth2Service, OAuth2Session

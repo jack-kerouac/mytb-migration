@@ -1,14 +1,14 @@
 import os
 import urllib
-import requests
+import argparse
 
-__author__ = 'florian'
+import requests
+import yaml
 
 from mytb import parse_trip
 from mytb import parse_entry
 from wordpress import WordpressSite
-import argparse
-import yaml
+
 
 # EXAMPLE TRIP: http://www.travelblog.org/Bloggers/Jack-Kerouac/Trips/22425
 # EXAMPLE ENTRY: http://www.travelblog.org/Europe/Germany/Bavaria/Munich/blog-814549.html

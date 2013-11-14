@@ -1,11 +1,10 @@
 import logging
 import urllib
+import re
 
 from pyquery import PyQuery
 import dateutil.parser as dparser
 import lxml
-
-import re
 
 import blog
 

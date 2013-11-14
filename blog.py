@@ -1,6 +1,3 @@
-__author__ = 'florian'
-
-
 class Travelblog:
     """Represents a whole travel blog with a set of trips"""
 
