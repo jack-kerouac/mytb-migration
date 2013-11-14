@@ -99,12 +99,18 @@ def parse_text(entry, body):
     pass
 
 
+def full_photo_from_thumbnail(thumbnail_photo_url):
+    # this is not really solid. If mytb changes URL paths, this will not work anymore!
+    return thumbnail_photo_url.replace('/t/', '/f/')
+
+
 def get_photos_on_page(html):
     photos = []
 
     for photo_blog in html('.photo_blog').items():
         photo = blog.Photo()
-        photo.url = photo_blog.find('img:first').attr('data-src')
+        # since the link inside the entry page is to the thumbnail version of the image, transform it to the full URL
+        photo.mytb_url = full_photo_from_thumbnail(photo_blog.find('img:first').attr('data-src'))
         photo.title = photo_blog.find('img:first').attr('title')
         photo.subtitle = PyQuery(photo_blog.contents()[-1]).text() if photo_blog.find('hr') else ''
 
