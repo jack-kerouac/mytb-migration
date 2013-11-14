@@ -22,29 +22,12 @@ def pyquery(url):
                    parser='html')
 
 
-def has_class(element, class_):
-    if not PyQuery(element).attr.class_:
-        return False
-    else:
-        return class_ in PyQuery(element).attr.class_.split(' ')
-
-
 def is_text(node):
     return type(node) == lxml.etree._ElementUnicodeResult
 
 
 def get_text_nodes(pyquery):
     return [str(node) for node in filter(lambda node: is_text(node), pyquery.contents())]
-
-
-def is_element(node, tag=None):
-    if is_text(node):
-        return False
-
-    if tag:
-        return node.tag == tag
-    else:
-        return True
 
 
 def parse_meta(entry, body):
