@@ -15,8 +15,7 @@ from wordpress import WordpressSite
 
 
 def _store_entry(entry, entry_dir, separate_text_file=True, download_photos=True):
-    if not os.path.isdir(entry_dir):
-        os.mkdir(entry_dir)
+    os.mkdir(entry_dir)
 
     # ENTRY TEXT
     if separate_text_file:
@@ -43,8 +42,7 @@ def _store_entry(entry, entry_dir, separate_text_file=True, download_photos=True
 
 
 def _store_trip(trip, trip_dir, separate_text_file=True, download_photos=True):
-    if not os.path.isdir(trip_dir):
-        os.mkdir(trip_dir)
+    os.mkdir(trip_dir)
 
     # ENTRIES
     for i, entry in enumerate(trip.entries):
@@ -97,13 +95,13 @@ subparsers = parser.add_subparsers(dest='subparser_name', title='subcommands')
 parser_download_trip = subparsers.add_parser('download-trip', help='download a whole trip from www.mytb.org')
 parser_download_trip.set_defaults(func=download_trip)
 parser_download_trip.add_argument(dest='trip_url')
-parser_download_trip.add_argument('-t', '--target-directory', required=True)
+parser_download_trip.add_argument('-t', '--target-directory', help='will be created', required=True)
 
 
 parser_download_entry = subparsers.add_parser('download-entry', help='download a single entry from www.mytb.org')
 parser_download_entry.set_defaults(func=download_entry)
 parser_download_entry.add_argument(dest='entry_url')
-parser_download_entry.add_argument('-t', '--target-directory', required=True)
+parser_download_entry.add_argument('-t', '--target-directory', help='will be created', required=True)
 
 
 parser_wp_access_token = subparsers.add_parser('wp-access-token', help='retrieve the access token for a wordpress blog')
