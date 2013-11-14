@@ -34,7 +34,7 @@ def is_text(node):
 
 
 def get_text_nodes(pyquery):
-    return filter(lambda node: is_text(node), pyquery.contents())
+    return [str(node) for node in filter(lambda node: is_text(node), pyquery.contents())]
 
 
 def is_element(node, tag=None):
@@ -147,6 +147,27 @@ def parse_photos(entry, html):
             entry.photos.extend(get_photos_on_page(html))
 
 
+def parse_comment(entry, html):
+    comments = html('div.comment_display')
+
+    entry.comments = []
+
+    for comment_elem in comments.items():
+        comment = blog.Comment()
+
+        text_nodes = get_text_nodes(comment_elem)
+
+        comment.date = dparser.parse(text_nodes[0].strip().replace('Date: ', ''))
+        comment.author = get_text_nodes(comment_elem('.from a'))[0].strip()
+
+        comment.title = comment_elem('b').text()
+        comment.text = text_nodes[2].strip()
+
+        entry.comments.append(comment)
+
+    pass
+
+
 def parse_entry(url):
     logger.info('Reading mytb entry from {}'.format(url))
 
@@ -161,6 +182,8 @@ def parse_entry(url):
 
     parse_photos(entry, d.clone())
 
+    parse_comment(entry, d.clone())
+
     return entry
 
 
@@ -169,7 +192,7 @@ def parse_trip(url):
     trip.mytb_url = url
 
     content = pyquery(url)('#content')
-    text_nodes = list(get_text_nodes(content))
+    text_nodes = get_text_nodes(content)
 
     trip.title = content('h1').text()
     trip.description = str(text_nodes[2])

@@ -35,14 +35,24 @@ class Entry:
     - publish date
     - text
     - photos (list)
+    - comments
     - # views
     """
 
-    def __init__(self):
-        self.photos = []
-
     def __str__(self):
         return "{}: {}".format(self.title, self.location)
+
+
+class Comment:
+    """
+    A comment
+
+    - date
+    - author
+    - title
+    - text
+    """
+
 
 class Photo:
     """
