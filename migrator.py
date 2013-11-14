@@ -14,9 +14,9 @@ from wordpress import WordpressSite
 # EXAMPLE ENTRY: http://www.travelblog.org/Europe/Germany/Bavaria/Munich/blog-814549.html
 
 
-def _store_entry(id, entry, target_dir, separate_text_file=True, download_photos=True):
-    entry_dir = os.path.join(target_dir, id)
-    os.mkdir(entry_dir)
+def _store_entry(entry, entry_dir, separate_text_file=True, download_photos=True):
+    if not os.path.isdir(entry_dir):
+        os.mkdir(entry_dir)
 
     # ENTRY TEXT
     if separate_text_file:
@@ -42,6 +42,24 @@ def _store_entry(id, entry, target_dir, separate_text_file=True, download_photos
         yaml.dump(entry, entry_file)
 
 
+def _store_trip(trip, trip_dir, separate_text_file=True, download_photos=True):
+    if not os.path.isdir(trip_dir):
+        os.mkdir(trip_dir)
+
+    # ENTRIES
+    for i, entry in enumerate(trip.entries):
+        entry_dir = os.path.join(trip_dir, '{0:03d}'.format(i))
+        _store_entry(entry, entry_dir, separate_text_file=separate_text_file, download_photos=download_photos)
+
+    del trip.entries
+
+    # TRIP METADATA
+    # write after the rest, since entries are modified (local path is added to photos, ...)
+    with open(os.path.join(trip_dir, 'trip.yaml'), mode='tw', encoding='utf-8') as trip_file:
+        yaml.dump(trip, trip_file)
+
+
+
 def _verify_http_url(url):
     pieces = urllib.parse.urlparse(url)
     assert all([pieces.scheme, pieces.netloc])
@@ -55,7 +73,8 @@ def download_trip(args):
     assert trip.number_entries == len(trip.entries)
     assert trip.number_photos == sum(map(lambda entry: len(entry.photos), trip.entries))
 
-    print(yaml.dump(trip))
+    target_dir = os.path.abspath(args.target_directory)
+    _store_trip(trip, target_dir)
 
 
 def download_entry(args):
@@ -63,8 +82,7 @@ def download_entry(args):
     entry = parse_entry(args.entry_url)
 
     target_dir = os.path.abspath(args.target_directory)
-
-    _store_entry('001', entry, target_dir)
+    _store_entry(entry, target_dir)
 
 
 def wp_access_token(args):
@@ -79,6 +97,7 @@ subparsers = parser.add_subparsers(dest='subparser_name', title='subcommands')
 parser_download_trip = subparsers.add_parser('download-trip', help='download a whole trip from www.mytb.org')
 parser_download_trip.set_defaults(func=download_trip)
 parser_download_trip.add_argument(dest='trip_url')
+parser_download_trip.add_argument('-t', '--target-directory', required=True)
 
 
 parser_download_entry = subparsers.add_parser('download-entry', help='download a single entry from www.mytb.org')
@@ -92,6 +111,7 @@ parser_wp_access_token.set_defaults(func=wp_access_token)
 parser_wp_access_token.add_argument('--client-id', required=True)
 parser_wp_access_token.add_argument('--client-secret', required=True)
 parser_wp_access_token.add_argument('--redirect-uri', required=True)
+
 
 
 args = parser.parse_args()
