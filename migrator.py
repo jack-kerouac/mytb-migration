@@ -1,4 +1,6 @@
+import os
 import urllib
+import requests
 
 __author__ = 'florian'
 
@@ -10,6 +12,34 @@ import yaml
 
 # EXAMPLE TRIP: http://www.travelblog.org/Bloggers/Jack-Kerouac/Trips/22425
 # EXAMPLE ENTRY: http://www.travelblog.org/Europe/Germany/Bavaria/Munich/blog-814549.html
+
+
+def _store_entry(id, entry, target_dir, separate_text_file=True, download_photos=True):
+    entry_dir = os.path.join(target_dir, id)
+    os.mkdir(entry_dir)
+
+    # ENTRY TEXT
+    if separate_text_file:
+        with open(os.path.join(entry_dir, 'text.html'), mode='tw', encoding='utf-8') as content_file:
+            content_file.write(entry.text)
+        del entry.text
+
+    # PHOTOS
+    # put photos in the entry folder, not a sub folder
+    photo_dir = entry_dir
+    if download_photos:
+        for i, photo in enumerate(entry.photos):
+            # referer header required, otherwise: 403 - Hotlinking is forbidden
+            r = requests.get(photo.mytb_url, headers={'referer': entry.mytb_url})
+            photo_path = os.path.join(photo_dir, "{0:03d}.jpg".format(i))
+            photo.local_path = os.path.relpath(photo_path, start=entry_dir)
+            with open(photo_path, mode='bw') as photo_file:
+                photo_file.write(r.content)
+
+    # ENTRY METADATA
+    # write after the rest, since entries are modified (local path is added to photos, ...)
+    with open(os.path.join(entry_dir, 'entry.yaml'), mode='tw', encoding='utf-8') as entry_file:
+        yaml.dump(entry, entry_file)
 
 
 def _verify_http_url(url):
@@ -32,7 +62,9 @@ def download_entry(args):
     _verify_http_url(args.entry_url)
     entry = parse_entry(args.entry_url)
 
-    print(yaml.dump(entry))
+    target_dir = os.path.abspath(args.target_directory)
+
+    _store_entry('001', entry, target_dir)
 
 
 def wp_access_token(args):
@@ -52,6 +84,7 @@ parser_download_trip.add_argument(dest='trip_url')
 parser_download_entry = subparsers.add_parser('download-entry', help='download a single entry from www.mytb.org')
 parser_download_entry.set_defaults(func=download_entry)
 parser_download_entry.add_argument(dest='entry_url')
+parser_download_entry.add_argument('-t', '--target-directory', required=True)
 
 
 parser_wp_access_token = subparsers.add_parser('wp-access-token', help='retrieve the access token for a wordpress blog')
