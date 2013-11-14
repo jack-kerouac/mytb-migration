@@ -10,7 +10,6 @@ import blog
 
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
 
 BASE_URL = 'http://www.travelblog.org'
 

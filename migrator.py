@@ -1,3 +1,5 @@
+import logging
+import logging.config
 import os
 import urllib
 import argparse
@@ -12,6 +14,37 @@ from wordpress import WordpressSite
 
 # EXAMPLE TRIP: http://www.travelblog.org/Bloggers/Jack-Kerouac/Trips/22425
 # EXAMPLE ENTRY: http://www.travelblog.org/Europe/Germany/Bavaria/Munich/blog-814549.html
+
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.WARN)
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+        },
+    },
+    'handlers': {
+        'default': {
+            'level':'INFO',
+            'class':'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'mytb': {
+            'handlers': ['default'],
+            'level': 'INFO',
+            'propagate': False
+        },
+        'migrator': {
+            'handlers': ['default'],
+            'level': 'INFO',
+            'propagate': False
+        },
+    }
+})
 
 
 def _store_entry(entry, entry_dir, separate_text_file=True, download_photos=True):
@@ -29,6 +62,7 @@ def _store_entry(entry, entry_dir, separate_text_file=True, download_photos=True
     if download_photos:
         for i, photo in enumerate(entry.photos):
             # referer header required, otherwise: 403 - Hotlinking is forbidden
+            logging.info('downloading photo from %s', photo.mytb_url)
             r = requests.get(photo.mytb_url, headers={'referer': entry.mytb_url})
             photo_path = os.path.join(photo_dir, "{0:03d}.jpg".format(i))
             photo.local_path = os.path.relpath(photo_path, start=entry_dir)
